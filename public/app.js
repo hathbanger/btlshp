@@ -1,4 +1,5 @@
 
+
 var boatType = ["Aircraft Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"];
 var boatSize = [5,4,3,2,1];
 var ships = [];
@@ -110,42 +111,44 @@ jQuery(function($){
 
 
                 }else{
-                    var changeVar = $('tr.'+row+' td.'+col);
                     console.log("player info: "+data.playerId);
-                    // $('#userTable tr.'+row+' td.'+col).click(function(){$(this).css({'background-color':'black'})}); 
                     if (data.playerId !== App.mySocketId){
-                        // $('#guessTable tr.'+row+' td.'+col).css({'background-color':'black'})
-                        $('#guessTable tr.'+row+' td.'+col).addClass('miss');
+                        if(ships[k].locations.indexOf(hisShot) < 0){
+                            $('#guessTable tr.'+row+' td.'+col).removeClass('ship').addClass('miss');
+                        }else{
+                           $('#guessTable tr.'+row+' td.'+col).removeClass('miss ship').addClass('hit'); 
+                        }
                     } else if (data.playerId == App.mySocketId){
                         $('#userTable tr.'+row+' td.'+col).addClass('miss');
-                        
                     }
                     // changeVar.css({'outline':'red solid 2px','background-color':'blue'});
                 }
             }
 
 
-            for (var i = 0; i < 3; i++){
-            var woo = data.ships[i];
-            // for(var b = 0; b < 3; b++){
+            // for (var i = 0; i < 3; i++){
+            // var woo = data.ships[i];
+            // // for(var b = 0; b < 3; b++){
             
-            // for(var s = 0; s < ships.locations; s++){
-            //     if(woo.locations[b] == ships[b].locations[s]){console.log('cmonnnn...')}
-            //         console.log("ships from gamechange: " + woo.locations[s]);
+            // // for(var s = 0; s < ships.locations; s++){
+            // //     if(woo.locations[b] == ships[b].locations[s]){console.log('cmonnnn...')}
+            // //         console.log("ships from gamechange: " + woo.locations[s]);
+            // //     }
+            // // }
+            // console.log('change game state! row: ' + row+ " col: "+ col);
+            // var index = woo.locations.indexOf(row);
+            // //             var changeVar = $('tr.'+row+' td.'+col);
+            // // changeVar.css({'background-color':'black'});
+
+            //     // console.log('index of shot: ' + index);
+            //     if(woo.locations[0] == row){
+            //     console.log("woo locations is right!");
             //     }
             // }
-            console.log('change game state! row: ' + row+ " col: "+ col);
-            var index = woo.locations.indexOf(row);
-            //             var changeVar = $('tr.'+row+' td.'+col);
-            // changeVar.css({'background-color':'black'});
-
-                // console.log('index of shot: ' + index);
-                if(woo.locations[0] == row){
-                console.log("woo locations is right!");
-                }
-            }
 
             App.currentRound = App.currentRound + 1;
+            console.log("current round: "+App.currentRound);
+            $('#round').text(App.currentRound);
         },
         isSunk: function(ship){
             for (var i = 0; i < 3; i++){
@@ -185,10 +188,10 @@ jQuery(function($){
             console.log('HITTT!!!!!!')
             if(data.playerId == App.mySocketId){
                 console.log('damn bruh! i knew u were the champion!')
-                $('#userTable tr.'+row+' td.'+ col).removeClass('miss').css({'background-color':'green'});
+                $('#userTable tr.'+row+' td.'+ col).removeClass('miss').css({'background-color':'green', 'outline': 'white solid 1px'});
             }else{
                 console.log('damn son, u just got shot')
-                $('#userGuesses tr.'+row+' td.'+ col).removeClass('ship').addClass("hit");
+                $('#userGuesses tr.'+row+' td.'+ col).removeClass('miss ship').css({'background-color':'green', 'outline': 'white solid 1px'});
         
             }
 
@@ -506,6 +509,7 @@ jQuery(function($){
              * Click handler for the 'JOIN' button
              */
             onJoinClick: function () {
+                $("li a #btnStart").unbind("click");
                 console.log('Clicked "Join A Game"');
 
                 
@@ -576,6 +580,7 @@ jQuery(function($){
              * and clicked Start.
              */
             onPlayerStartClick: function() {
+                if(ships.length == 0){
 
                 // collect data to send to the server
                 var data = {
@@ -593,6 +598,9 @@ jQuery(function($){
                 App.myRole = 'Player';
                 App.Player.myName = data.playerName;
                 App.Player.generateShipLocations(data);
+                }else{
+                    console.log('woah broh, stop hittin that button')
+                }
             },
 
 

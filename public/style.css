@@ -1,17 +1,46 @@
-.hit{
-	background-color: red!important;
+body{
+	background-color: cadetblue !important;
 }
 .miss{
 	background-color: black!important;
+	outline: white solid 1px;
+}
+.hit{
+	background-color: red!important;
+	outline: black solid 1px;
+}
+
+.compMiss{
+	background-color: black!important;
+	outline: black solid 1px;
 }
 .ship{
 	background-color: silver!important;
 }
+td{
+	border: black solid 1px;
+	border-radius: 2px;
+}
 
-/*.pause {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  background-color: rgba(33,33,33,.4);
-}*/
+#userTable td{
+	transition: background-color .5s;
+}
+
+#userTable td:hover{
+	outline: yellow solid 1px;	
+	background-color: red;
+}
+#round{
+	color: white;
+}
+#userRound{
+	color: white;
+}
+#comRound{
+	color: white;
+}
+
+.stat{
+	background-color: darkslategrey;
+	color: white;
+}

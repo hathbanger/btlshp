@@ -57,6 +57,7 @@ var socket = io.connect();
 
 
   });
+                $('#userTable td').mouseover({'background-color':'red'})
 
  // $('td').mouseover(function(){
  //    console.log('click!')

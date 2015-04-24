@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Battleship</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link href='http://fonts.googleapis.com/css?family=Playfair+Display|Righteous|Francois+One|Quattrocento+Sans|Amatic+SC|PT+Sans+Caption|Bangers' rel='stylesheet' type='text/css'>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+<!-- 	<link rel="stylesheet" type="text/css" href="style.css">
+ -->	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+	<script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+	<div class="container">
+		<div id="toolbar">
+			<div class="instructions">
+<!-- 					<p id="bodyInstructions">He is the best sailor who can steer within fewest points of the wind, and exact a motive power out of the greatest obstacles.
+					
+					</p> -->
+
+					<div class="info tab" id="shotsTaken">
+						<p>shots taken:</p>
+					</div>
+						
+					<div class="info tab" id="lastShot">
+						<p>Last Shot: </p>
+					</div>
+						
+					<div class="info tab" id="shipsSunk">
+						<p>Ships Sunk:</p>
+					</div>
+					
+						<p id="userGuessArray"></p>
+						<%= user.local.email %>
+
+			</div>
+		       <div class="joinGameWrapper">
+	            <div class="info">
+	                <label for="inputPlayerName">Your Name:</label>
+	                <input id="inputPlayerName" type="text" />
+	            </div>
+
+	            <div class="info">
+	                <label for="inputGameId">Game ID:</label>
+	                <input id="inputGameId" type="text"/>
+	            </div>
+
+	            <div class="info buttons">
+	                <button id="btnStart" class="btn">Start</button>
+	                <div id="playerWaitingMessage"></div>
+	            </div>
+	        </div>
+			
+			<h1 id="title">btlshp</h1>
+			<div id="numHit"></div>
+			<div id="messageArea"></div>
+			<div id="shots"></div>
+			<div id="shipsSank"></div>
+			<button id="randomShips"><i class="fa fa-random"></i></button>
+			<button id="switchBoards"><i class="fa fa-arrows-h"></i></button>
+			<button id="home"><i class="fa fa-home"></i></button>
+
+		</div>
+		<div class="row">
+<div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="col-md-6">
+        <table id="userTable"></table>
+
+    </div>    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="col-md-6">
+        <table id="guessTable"></table>
+
+    </div>
+
+</div>
+</div>
+		<div id="turn"></div>
+	</div>
+
+	<script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+    <script type="text/javascript" src="map.js"></script>
+    <script type="text/javascript">
+	</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+.hit{
+	background-color: red!important;
+}
+.miss{
+	background-color: black!important;
+}
+.ship{
+	background-color: silver!important;
+}
+
+/*.pause {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  background-color: rgba(33,33,33,.4);
+}*/

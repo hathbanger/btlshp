@@ -60,7 +60,7 @@ jQuery(function($){
         onNewGameCreated : function(data) {
             App.Host.gameInit(data);
             console.log('game init!')
-            $('#shipsSunk').append(data.gameId);
+            $('#inputGameId').val(data.gameId);
             IO.socket.emit('addGame', data)
 
         },
@@ -98,7 +98,7 @@ jQuery(function($){
                     ships[k].hits[ships[k].locations.indexOf(hisShot)] = "hit";
                     console.log(ships[k].hits)
                      if (data.playerId !== App.mySocketId){
-                        $('#guessTable tr.'+row+' td.'+col).removeClass('ship').addClass('hit');
+                        $('#guessTable tr.'+row+' td.'+col).removeClass('miss').addClass('hit');
                         IO.socket.emit('hit', data, row, col);
                         for (var b = 0; b < 3; b++){
                             if(IO.isSunk(ships[b])){

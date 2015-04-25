@@ -3,11 +3,15 @@ body{
 }
 .miss{
 	background-color: black!important;
-	outline: white solid 1px;
+/*	outline: white solid 1px;*/
 }
 .hit{
 	background-color: red!important;
 	outline: black solid 1px;
+}
+.damage{
+	background-color: green!important;
+	outline: white 1px solid;
 }
 
 .compMiss{
@@ -20,15 +24,27 @@ body{
 td{
 	border: black solid 1px;
 	border-radius: 2px;
+	background-color: red;
 }
 
 #userTable td{
-	transition: background-color .5s;
+	transition: border-radius .5s ease;
+	transition: transform 1s ease;
+	transition: border-radius .2s ease-out;
+	transform: scale 2s ease-in-out;
 }
 
 #userTable td:hover{
-	outline: yellow solid 1px;	
-	background-color: red;
+/*	outline: yellow solid 1px;	*/
+	border-radius: 100%;
+	transition: 1s transform ease;
+	transform: scale(.8);
+}
+#userTable td.damage{
+	outline: white solid 1px;	
+	border-radius: 10px;
+	transition: 1s transform ease-in;
+	transform: rotate(1080deg);
 }
 #round{
 	color: white;

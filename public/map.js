@@ -57,11 +57,3 @@ var socket = io.connect();
 
 
   });
-                $('#userTable td').mouseover({'background-color':'red'})
-
- // $('td').mouseover(function(){
- //    console.log('click!')
- //  });
-  // socket.on('col', function(msg){
-  //   $('#guessTable.'+msg).addClass('hit');
-  // });

@@ -1,9 +1,10 @@
+// Declare variables and array to store current game room information
 var io;
 var gameSocket;
+var gameRooms = [];
 
 /**
  * This function is called by index.js to initialize a new game instance.
- *
  * @param sio The Socket.IO library
  * @param socket The socket object for the connected client.
  */
@@ -11,13 +12,13 @@ exports.initGame = function(sio, socket){
     console.log('btlgame running')
     io = sio;
     gameSocket = socket;
+    // emit event to clients on connection
     gameSocket.emit('connected', { message: "You are connected!" });
 
     // Host Events
     gameSocket.on('hostCreateNewGame', hostCreateNewGame);
     gameSocket.on('hostRoomFull', hostPrepareGame);
     gameSocket.on('hostCountdownFinished', hostStartGame);
-    // gameSocket.on('hostNextRound', hostNextRound);
 
     // Player Events
     gameSocket.on('playerJoinGame', playerJoinGame);
@@ -76,6 +77,7 @@ function hostPrepareGame(gameId) {
  */
 function hostStartGame(data) {
     console.log('Game Started.');
+
     console.log('host fires first...');
     console.log(data.turn);
 
@@ -101,7 +103,13 @@ function playerJoinGame(data) {
 
     // Look up the room ID in the Socket.IO manager object.
     var room = gameSocket.manager.rooms["/" + data.gameId];
+    var index = gameRooms.indexOf(data.gameId);
+    console.log(index + " index!")
+    if (index > -1) {
+    gameRooms.splice(index, 1);
+    }
 
+    console.log(gameRooms);
     // If the room exists...
     if( room != undefined ){
         // attach the socket id to the data object.
@@ -123,14 +131,15 @@ function playerJoinGame(data) {
 
 function hostCreateNewGame(data) {
     var thisGameId = ( Math.random() * 100000 ) | 0;
-
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     this.emit('newGameCreated', {gameId: thisGameId, mySocketId: this.id, });
-
+    gameRooms.push(thisGameId);
+    console.log('gameRooms: ' + gameRooms);
+    console.log('built in rooms: ');
+    io.sockets.emit('roomFeed', 'hey');
     // Join the Room and wait for the players
     this.join(thisGameId.toString());
 }
-
 
 function gameSize(data){
     console.log('game size: ' + data); 
@@ -168,8 +177,13 @@ function hit(data, row, col){
 }
 
 function addGame(data){
-    console.log('add game fired')
+    console.log('add game fired: ' + data.gameId)
+    var roomData = data.gameId;
+    
+    
+    io.sockets.emit('roomLabel', gameRooms)
 }
+
 
 
 function hitShip(data, usr, row, col, myRole){

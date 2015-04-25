@@ -6,7 +6,6 @@ var ships = [];
 jQuery(function($){    
     'use strict';
     console.log('app.js running')
-
     /**
      * All the code relevant to Socket.IO is collected in the IO namespace.
      *
@@ -39,6 +38,9 @@ jQuery(function($){
             IO.socket.on('shipDamage', IO.shipDamage);
             IO.socket.on('hitVessel', IO.hitVessel);
             IO.socket.on('sunkShip', IO.sunkShip);
+            IO.socket.on('roomData', IO.addGameData);
+            IO.socket.on('roomFeed', IO.roomFeed);
+            IO.socket.on('roomLabel', IO.roomLabel);
             // IO.socket.on('col', IO.onNewWordData);
             IO.socket.on('gameChange', IO.gameChange);            
             IO.socket.on('gameOver', IO.gameOver);
@@ -61,7 +63,8 @@ jQuery(function($){
         onNewGameCreated : function(data) {
             App.Host.gameInit(data);
             console.log('game init!')
-            $('#inputGameId').val(data.gameId);
+            // $('#roomStack').append(data.gameId + ", ");
+            socket.on('roomFeed',function(data){})
             IO.socket.emit('addGame', data)
 
         },
@@ -76,6 +79,7 @@ jQuery(function($){
             // another for the 'player'.
             //
             console.log("a challenger has arrived!")
+
             // So on the 'host' browser window, the App.Host.updateWiatingScreen function is called.
             // And on the player's browser, App.Player.updateWaitingScreen is called.
             App[App.myRole].updateWaitingScreen(data);
@@ -174,6 +178,13 @@ jQuery(function($){
 
         },
 
+        roomLabel : function(roomData){
+            console.log('heres the room data! '+roomData)
+                $('#roomStack').html("<a href="+'#' +">" + roomData[0] + "</a>");
+
+            
+        },
+
         sunkShip : function(data, ship){
             socket.on('sunkship', function(ship){
                 console.log(ship.typeOfBoat + ' was sunk!!')
@@ -188,7 +199,7 @@ jQuery(function($){
             console.log('HITTT!!!!!!')
             if(data.playerId == App.mySocketId){
                 console.log('damn bruh! i knew u were the champion!')
-                $('#userTable tr.'+row+' td.'+ col).removeClass('miss').css({'background-color':'green', 'outline': 'white solid 1px'});
+                $('#userTable tr.'+row+' td.'+ col).removeClass('miss').addClass('damage')
             }else{
                 console.log('damn son, u just got shot')
                 $('#userGuesses tr.'+row+' td.'+ col).removeClass('miss ship').css({'background-color':'green', 'outline': 'white solid 1px'});
@@ -297,7 +308,7 @@ jQuery(function($){
 
             // Player
             App.$doc.on('click', '#btnStart', App.Player.onJoinClick);
-            App.$doc.on('click', '#btnStart',App.Player.onPlayerStartClick);
+            App.$doc.on('click', '#roomStack a',App.Player.onPlayerStartClick);
             App.$doc.on('click', '#userTable td',App.Player.onPlayerAnswerClick);
             App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
         },
@@ -350,6 +361,7 @@ jQuery(function($){
              * Handler for the "Start" button on the Title Screen.
              */
             onCreateClick: function () {
+                $("li a #btnStart").unbind("click");
                 console.log('Clicked "Create A Game"');
                 IO.socket.emit('hostCreateNewGame');
             },
@@ -394,9 +406,9 @@ jQuery(function($){
              */
             updateWaitingScreen: function(data) {
 
-                $('#lastShot')
-                    .append('<p/>')
-                    .text('Player ' + data.playerName + ' joined the game.');
+                // $('#roomStack')
+                //     .append('<p/>')
+                //     .text('Player ' + data.playerName + ' joined the game.');
 
                 // Store the new player's data on the Host.
                 App.Host.players.push(data);
@@ -492,12 +504,10 @@ jQuery(function($){
              * A reference to the socket ID of the Host
              */
             hostSocketId: '',
-
             /**
              * The player's name entered on the 'Join' screen.
              */
             myName: '',
-
 
             shipLength: 3,
 
@@ -550,6 +560,10 @@ jQuery(function($){
                 }
             },
 
+            addGame : function (){
+                console.log('woo! working addgame working...')
+            },
+
             generateShip: function() {
                 var direction = Math.floor(Math.random() * 2);
                 var row, col;
@@ -584,7 +598,7 @@ jQuery(function($){
 
                 // collect data to send to the server
                 var data = {
-                    gameId : +($('#inputGameId').val()),
+                    gameId : +($(this).text()),
                     playerName : $('#inputPlayerName').val() || 'anon'
                 };
 
@@ -662,6 +676,14 @@ jQuery(function($){
                 });
             },
 
+            addGameData : function (data){
+                console.log('someone did something')
+                $('#turn').text(data);
+            },
+
+            roomFeed    :  function (data){
+                console.log('room feed fired...' + data)
+            },
 
             /**
              *  Click handler for the "Start Again" button that appears

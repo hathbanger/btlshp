@@ -37,6 +37,14 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a id="turn"><span class="sr-only">(current)</span>
+          </a>
+        </li>
+        <li class="active">
+          <a id="roomStack"> <span class="sr-only">(current)</span>
+          </a>
+        </li>
         <li class="active">
           <a id="title">Start <span class="sr-only">(current)</span>
           </a>
@@ -56,17 +64,21 @@
   </div><!-- /.container-fluid -->
 </nav>
 	<div class="container">
+<hr>
 		<div class="instructions">
 			<div class="row">
 				<div class="container">
-					<!-- Brand and toggle get grouped for better mobile display -->
 					<div class="col-md-6">
     					<table id="userTable"></table>
-					</div>    <!-- Brand and toggle get grouped for better mobile display -->
-					<div class="col-md-6">
-    					<table id="guessTable"></table>
+              <code>enemy</code>
 					</div>
+          <div class="col-md-6">
+    					<table id="guessTable"></table>
+              <code>user</code>
+					</div>
+
 				</div>
+        <hr>
 			</div>
 		</div>
 	</div>

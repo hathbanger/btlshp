@@ -601,7 +601,7 @@ jQuery(function($){
                     gameId : +($(this).text()),
                     playerName : $('#inputPlayerName').val() || 'anon'
                 };
-
+                    
                 // App.Host.displayNewGameScreen(gameSize);
 
                 // Send the gameId and playerName to the server

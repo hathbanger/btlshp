@@ -1,5 +1,3 @@
-
-
 var boatType = ["Aircraft Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"];
 var boatSize = [5,4,3,2,1];
 var ships = [];
@@ -30,20 +28,11 @@ jQuery(function($){
             IO.socket.on('connected', IO.onConnected );
             IO.socket.on('newGameCreated', IO.onNewGameCreated );
             IO.socket.on('playerJoinedRoom', IO.playerJoinedRoom );
-            IO.socket.on('beginNewGame', IO.beginNewGame );
-            // IO.socket.on('newWordData', IO.onNewWordData);
-            // IO.socket.on('row', IO.onNewWordData);
-            IO.socket.on('test', IO.test);
-            IO.socket.on('hit', IO.hit);
-            IO.socket.on('shipDamage', IO.shipDamage);
             IO.socket.on('hitVessel', IO.hitVessel);
             IO.socket.on('sunkShip', IO.sunkShip);
-            IO.socket.on('roomData', IO.addGameData);
-            IO.socket.on('roomFeed', IO.roomFeed);
+            IO.socket.on('message', IO.roomLabel);
             IO.socket.on('roomLabel', IO.roomLabel);
-            // IO.socket.on('col', IO.onNewWordData);
             IO.socket.on('gameChange', IO.gameChange);            
-            IO.socket.on('gameOver', IO.gameOver);
             IO.socket.on('error', IO.error );
         },
 
@@ -63,10 +52,7 @@ jQuery(function($){
         onNewGameCreated : function(data) {
             App.Host.gameInit(data);
             console.log('game init!')
-            // $('#roomStack').append(data.gameId + ", ");
-            socket.on('roomFeed',function(data){})
             IO.socket.emit('addGame', data)
-
         },
 
         /**
@@ -85,34 +71,24 @@ jQuery(function($){
             App[App.myRole].updateWaitingScreen(data);
         },
 
-        /**
-         * Both players have joined the game.
-         * @param data
-         */
-        beginNewGame : function(data) {
-            App[App.myRole].gameCountdown(data);
-            console.log('countdown')
-            // displayNewGameScreen(data.gameSize);
-        },
-
-
         gameChange : function(data, row, col){
+            // this is the location of the opponents shot..
             var hisShot =  row + " " + col;
+            // iterate through the ships to check of the location is a hit..
             for(var k = 0; k < 3; k++){
-                if(ships[k].locations.indexOf(hisShot) >= 0){
-                    ships[k].hits[ships[k].locations.indexOf(hisShot)] = "hit";
+                var index = ships[k].locations.indexOf(hisShot);
+                if(index >= 0){
+                    ships[k].hits[index] = "hit";
                     console.log(ships[k].hits)
-                     if (data.playerId !== App.mySocketId){
-                        $('#guessTable tr.'+row+' td.'+col).removeClass('miss').addClass('hit');
+                    if (data.playerId !== App.mySocketId){
+                        $('#guessTable tr.'+row+' td.'+col).removeClass('miss').addClass('hit animate');
                         IO.socket.emit('hit', data, row, col);
-                        for (var b = 0; b < 3; b++){
-                            if(IO.isSunk(ships[b])){
-                                console.log('sunk!!')
-                                IO.socket.emit('sunk', data, ships[b])
-                            }
+                            if(IO.isSunk(ships[k])){
+                                alert('Your '+ships[k].typeOfBoat+' has been sunk!')
+                                IO.socket.emit('sunk', data, ships[k])
+                                console.log('total ships sunk: ' + App.Player.shipsSunk)
                         }
                      }
-
 
                 }else{
                     console.log("player info: "+data.playerId);
@@ -123,37 +99,15 @@ jQuery(function($){
                            $('#guessTable tr.'+row+' td.'+col).removeClass('miss ship').addClass('hit'); 
                         }
                     } else if (data.playerId == App.mySocketId){
-                        $('#userTable tr.'+row+' td.'+col).addClass('miss');
+                        $('#userTable tr.'+row+' td.'+col).addClass('miss reveal');
                     }
-                    // changeVar.css({'outline':'red solid 2px','background-color':'blue'});
                 }
             }
-
-
-            // for (var i = 0; i < 3; i++){
-            // var woo = data.ships[i];
-            // // for(var b = 0; b < 3; b++){
-            
-            // // for(var s = 0; s < ships.locations; s++){
-            // //     if(woo.locations[b] == ships[b].locations[s]){console.log('cmonnnn...')}
-            // //         console.log("ships from gamechange: " + woo.locations[s]);
-            // //     }
-            // // }
-            // console.log('change game state! row: ' + row+ " col: "+ col);
-            // var index = woo.locations.indexOf(row);
-            // //             var changeVar = $('tr.'+row+' td.'+col);
-            // // changeVar.css({'background-color':'black'});
-
-            //     // console.log('index of shot: ' + index);
-            //     if(woo.locations[0] == row){
-            //     console.log("woo locations is right!");
-            //     }
-            // }
-
             App.currentRound = App.currentRound + 1;
             console.log("current round: "+App.currentRound);
-            $('#round').text(App.currentRound);
         },
+
+        // function to see if ship in question has been sunk
         isSunk: function(ship){
             for (var i = 0; i < 3; i++){
                 if (ship.hits[i] !== "hit"){
@@ -163,35 +117,29 @@ jQuery(function($){
             return true
         },
 
-        shipDamage : function(){
-            console.log('ship damage!')
-        },
-
-        test  : function(data, row, col){
-            console.log('this test worked over here!');
-        },
-
-        hit  : function(data, row, col){
-            console.log('u hit it dog!!!!' + row + data);
-            // var changeVar = $('tr.'+row+' td.'+col);
-            
-
-        },
-
+        //Add new rooms to top menu 
         roomLabel : function(roomData){
-            console.log('heres the room data! '+roomData)
-                $('#roomStack').html("<a href="+'#' +">" + roomData[0] + "</a>");
-
-            
+            console.log('heres the room data! '+roomData.length)
+            for(var i = 0; i < roomData.length;i++){
+                $('#roomStack').html("<a href="+'#' +">" + roomData[i] + "</a>");
+            }
         },
 
         sunkShip : function(data, ship){
+            App.Player.shipsSunk++;
+            console.log("total ships sunk! "+App.Player.shipsSunk)
             socket.on('sunkship', function(ship){
-                console.log(ship.typeOfBoat + ' was sunk!!')
-                alert(data.message)
+                alert(ship.typeOfBoat + ' was sunk!!')
             })
-            console.log(ship.typeOfBoat + " was sunk!")
-            $('#lastShot').append("<br>"+ship.typeOfBoat + ' was sunk!!');
+            if(data.playerId !== App.mySocketId){
+                $('.fa-times:nth-child('+App.Player.shipsSunk+')').addClass('damageSus');
+            }else{
+                $('.fa-ship:nth-child('+App.Player.shipsSunk+')').addClass('sendDam');
+            }
+            if(App.Player.shipsSunk >= 3){
+                alert('Game over!')
+            }
+                
 
         },
 
@@ -199,21 +147,15 @@ jQuery(function($){
             console.log('HITTT!!!!!!')
             if(data.playerId == App.mySocketId){
                 console.log('damn bruh! i knew u were the champion!')
-                $('#userTable tr.'+row+' td.'+ col).removeClass('miss').addClass('damage')
+                $('#userTable tr.'+row+' td.'+ col).removeClass('miss').addClass('damage animate').animate({'transform':'rotate(1080deg)'})
+                $('li .shipIcon:first').css({'color':'black'})
             }else{
                 console.log('damn son, u just got shot')
-                $('#userGuesses tr.'+row+' td.'+ col).removeClass('miss ship').css({'background-color':'green', 'outline': 'white solid 1px'});
-        
+
             }
 
         },
 
-        // miss  : function(data, row, col){
-        //     console.log('u missed it dog!!!!');
-        //     var changeVar = $('tr.'+row+' td.'+col);
-        //    $('tr.'+row+' td.'+ col).removeClass('ship').addClass("miss");
-
-        // },
         /**
          * A player answered. If this is the host, check the answer.
          * @param data
@@ -228,9 +170,9 @@ jQuery(function($){
          * Let everyone know the game has ended.
          * @param data
          */
-        gameOver : function(data) {
-            App[App.myRole].endGame(data);
-        },
+        // gameOver : function(data) {
+        //     App[App.myRole].endGame(data);
+        // },
 
         /**
          * An error has occurred.
@@ -256,6 +198,9 @@ jQuery(function($){
          */
         myRole: '',   // 'Player' or 'Host'
 
+
+        gameSize: 0,
+
         /**
          * The Socket.IO socket object identifier. This is unique for
          * each player and host. It is generated when the browser initially
@@ -278,7 +223,7 @@ jQuery(function($){
          */
         init: function () {
             App.cacheElements();
-            App.showInitScreen();
+            // App.showInitScreen();
             App.bindEvents();
 
             // Initialize the fastclick library
@@ -292,11 +237,10 @@ jQuery(function($){
             App.$doc = $(document);
 
             // Templates
-            App.$gameArea = $('#gameArea');
-            App.$templateIntroScreen = $('#intro-screen-template').html();
-            App.$templateNewGame = $('#create-game-template').html();
-            App.$templateJoinGame = $('#join-game-template').html();
-            App.$hostGame = $('#host-game-template').html();
+            // App.$gameArea = $('#gameArea');
+            // App.$templateNewGame = $('#create-game-template').html();
+            // App.$templateJoinGame = $('#join-game-template').html();
+            // App.$hostGame = $('#host-game-template').html();
         },
 
         /**
@@ -307,10 +251,10 @@ jQuery(function($){
             App.$doc.on('click', '#title', App.Host.onCreateClick);
 
             // Player
-            App.$doc.on('click', '#btnStart', App.Player.onJoinClick);
+            // App.$doc.on('click', '#btnStart', App.Player.onJoinClick);
             App.$doc.on('click', '#roomStack a',App.Player.onPlayerStartClick);
             App.$doc.on('click', '#userTable td',App.Player.onPlayerAnswerClick);
-            App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
+            // App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
         },
 
         /* *************************************
@@ -321,10 +265,10 @@ jQuery(function($){
          * Show the initial Anagrammatix Title Screen
          * (with Start and Join buttons)
          */
-        showInitScreen: function() {
-            App.$gameArea.html(App.$templateIntroScreen);
-            // App.doTextFit('.title');
-        },
+        // showInitScreen: function() {
+        //     // App.$gameArea.html(App.$templateIntroScreen);
+        //     // App.doTextFit('.title');
+        // },
 
 
         /* *******************************
@@ -361,9 +305,9 @@ jQuery(function($){
              * Handler for the "Start" button on the Title Screen.
              */
             onCreateClick: function () {
-                $("li a #btnStart").unbind("click");
                 console.log('Clicked "Create A Game"');
-                IO.socket.emit('hostCreateNewGame');
+                var gameSize = prompt('What sized game?')
+                IO.socket.emit('hostCreateNewGame', gameSize);
             },
 
             /**
@@ -375,27 +319,24 @@ jQuery(function($){
                 App.gameId = data.gameId;
                 App.mySocketId = data.mySocketId;
                 App.myRole = 'Host';
+                App.gameSize = data.gameSize;
                 // App.userName = prompt('whats your name?');
                 // App.userName = data.userName;
                 App.Host.numPlayersInRoom = [];
                 
-
-                console.log("Game started with ID: " + App.gameId + ' by host: ' + App.mySocketId);
+                console.log("Game started with ID: " + App.gameId + ' by host: ' + App.mySocketId + " with gamesize: "+ App.gameSize);
             },
 
             /**
              * Show the Host screen containing the game URL and unique game ID
              */
             displayNewGameScreen : function(gameSize) {
-
                 // Fill the game screen with the appropriate HTML
                 console.log('display new game screen fired');
-                IO.socket.emit('gameSize', gameSize);
-
+                IO.socket.emit('sizeInfo', gameSize);
                 // // Display the URL on screen
-                $('#shipsSunk').text(window.location.href);
+                $('#roomStack').prepend(window.location.href + " >>   ");
                 // App.doTextFit('#gameURL');
-
                 // // Show the gameId / room id on screen
                 $('#shotsTaken').text("game id: " + App.gameId);
             },
@@ -405,14 +346,9 @@ jQuery(function($){
              * @param data{{playerName: string}}
              */
             updateWaitingScreen: function(data) {
-
-                // $('#roomStack')
-                //     .append('<p/>')
-                //     .text('Player ' + data.playerName + ' joined the game.');
-
                 // Store the new player's data on the Host.
                 App.Host.players.push(data);
-                var gameSize = prompt("What size game?")
+                var gameSize = App.gameSize;
 
                 App.Host.displayNewGameScreen(gameSize);
                 // Increment the number of players in the room
@@ -437,57 +373,57 @@ jQuery(function($){
             /**
              * Show the countdown screen
              */
-            gameCountdown : function() {
+            // gameCountdown : function() {
 
-                // Prepare the game screen with new HTML
-                // App.$gameArea.html(App.$hostGame);
-                // App.doTextFit('#hostWord');
+            //     // Prepare the game screen with new HTML
+            //     // App.$gameArea.html(App.$hostGame);
+            //     // App.doTextFit('#hostWord');
 
-                // Begin the on-screen countdown timer
-                var $secondsLeft = $('#shipsSunk');
-                App.countDown( $secondsLeft, 5, function(){
-                    IO.socket.emit('hostCountdownFinished', App.gameId);
-                });
-            },
+            //     // Begin the on-screen countdown timer
+            //     var $secondsLeft = $('#shipsSunk');
+            //     App.countDown( $secondsLeft, 5, function(){
+            //         IO.socket.emit('hostCountdownFinished', App.gameId);
+            //     });
+            // },
 
 
             /**
              * All 10 rounds have played out. End the game.
              * @param data
              */
-            endGame : function(data) {
-                // Get the data for player 1 from the host screen
-                var $p1 = $('#player1Score');
-                var p1Score = +$p1.find('.score').text();
-                var p1Name = $p1.find('.playerName').text();
+            // endGame : function(data) {
+            //     // Get the data for player 1 from the host screen
+            //     var $p1 = $('#player1Score');
+            //     var p1Score = +$p1.find('.score').text();
+            //     var p1Name = $p1.find('.playerName').text();
 
-                // Get the data for player 2 from the host screen
-                var $p2 = $('#player2Score');
-                var p2Score = +$p2.find('.score').text();
-                var p2Name = $p2.find('.playerName').text();
+            //     // Get the data for player 2 from the host screen
+            //     var $p2 = $('#player2Score');
+            //     var p2Score = +$p2.find('.score').text();
+            //     var p2Name = $p2.find('.playerName').text();
 
-                // Find the winner based on the scores
-                var winner = (p1Score < p2Score) ? p2Name : p1Name;
-                var tie = (p1Score === p2Score);
+            //     // Find the winner based on the scores
+            //     var winner = (p1Score < p2Score) ? p2Name : p1Name;
+            //     var tie = (p1Score === p2Score);
 
-                // Display the winner (or tie game message)
-                if(tie){
-                    $('#hostWord').text("It's a Tie!");
-                } else {
-                    $('#hostWord').text( winner + ' Wins!!' );
-                }
-                // App.doTextFit('#hostWord');
+            //     // Display the winner (or tie game message)
+            //     if(tie){
+            //         $('#hostWord').text("It's a Tie!");
+            //     } else {
+            //         $('#hostWord').text( winner + ' Wins!!' );
+            //     }
+            //     // App.doTextFit('#hostWord');
 
-                // Reset game data
-                App.Host.numPlayersInRoom = 0;
-                App.Host.isNewGame = true;
-            },
+            //     // Reset game data
+            //     App.Host.numPlayersInRoom = 0;
+            //     App.Host.isNewGame = true;
+            // },
 
             /**
              * A player hit the 'Start Again' button after the end of a game.
              */
             restartGame : function() {
-                App.$gameArea.html(App.$templateNewGame);
+                // App.$gameArea.html(App.$templateNewGame);
                 $('#spanNewGameCode').text(App.gameId);
             }
         },
@@ -518,17 +454,16 @@ jQuery(function($){
             /**
              * Click handler for the 'JOIN' button
              */
-            onJoinClick: function () {
-                $("li a #btnStart").unbind("click");
-                console.log('Clicked "Join A Game"');
+            // onJoinClick: function () {
+            //     console.log('Clicked "Join A Game"');
 
                 
-                socket.on('newGame', function(msg){
-                    console.log('message: ' + msg);
-                  });
+            //     socket.on('newGame', function(msg){
+            //         console.log('message: ' + msg);
+            //       });
 
 
-            },
+            // },
 
             generateShipLocations: function() {
                 for (var i = 0; i < this.numShips; i++) {
@@ -595,14 +530,11 @@ jQuery(function($){
              */
             onPlayerStartClick: function() {
                 if(ships.length == 0){
-
                 // collect data to send to the server
                 var data = {
                     gameId : +($(this).text()),
                     playerName : $('#inputPlayerName').val() || 'anon'
                 };
-                    
-                // App.Host.displayNewGameScreen(gameSize);
 
                 // Send the gameId and playerName to the server
                 IO.socket.emit('playerJoinGame', data);
@@ -654,50 +586,31 @@ jQuery(function($){
 
                 // IO.socket.emit('playerAnswer', data);
                 IO.socket.emit('hitShip', data, data.playerId, data.row, data.col, App.myRole);
-                IO.socket.emit('test', data, data.row, data.col);
                 socket.on('hitShip', function(msg){
                         // data.round++;
                         console.log("current round: "+ msg[0]);
                 });
 
                 // socket.emit('guess', data.col, data.row);
-
-                socket.on('guess', function(col, row){
-
-                        for(var i = 0; i < ships.length; i++){
-                            for(var b = 0;b < ships.length; b ++)
-                            var hit = ships[i].locations[b];
-                            // console.log("current boats for guesses: "+ hit)
-                            if(ships[i].locations[b] == col + " " + row){
-                                console.log('boom!!!')
-                            }
-                        }
-                            console.log("row on guess: " + row);
-                });
             },
 
-            addGameData : function (data){
-                console.log('someone did something')
-                $('#turn').text(data);
-            },
-
-            roomFeed    :  function (data){
-                console.log('room feed fired...' + data)
-            },
+            // roomFeed    :  function (data){
+            //     console.log('room feed fired...' + data)
+            // },
 
             /**
              *  Click handler for the "Start Again" button that appears
              *  when a game is over.
              */
-            onPlayerRestart : function() {
-                var data = {
-                    gameId : App.gameId,
-                    playerName : App.Player.myName
-                }
-                IO.socket.emit('playerRestart',data);
-                App.currentRound = 0;
-                $('#gameArea').html("<h3>Waiting on host to start new game.</h3>");
-            },
+            // onPlayerRestart : function() {
+            //     var data = {
+            //         gameId : App.gameId,
+            //         playerName : App.Player.myName
+            //     }
+            //     IO.socket.emit('playerRestart',data);
+            //     App.currentRound = 0;
+            //     $('#gameArea').html("<h3>Waiting on host to start new game.</h3>");
+            // },
 
             /**
              * Display the waiting screen for player 1
@@ -707,12 +620,6 @@ jQuery(function($){
                 if(IO.socket.socket.sessionid === data.mySocketId){
                     App.myRole = 'Player';
                     App.gameId = data.gameId;
-
-                    $('#playerWaitingMessage')
-                        .append('<p/>')
-                        .text('Joined Game ' + data.gameId + '. Please wait for game to begin.');
-
-
                 }
             },
 
@@ -720,30 +627,30 @@ jQuery(function($){
              * Display 'Get Ready' while the countdown timer ticks down.
              * @param hostData
              */
-            gameCountdown : function(hostData) {
-                App.Player.hostSocketId = hostData.mySocketId;
-                $('#gameArea')
-                    .html('<div class="gameOver">Get Ready!</div>');
-                $('tr.1').css({'background-color':'yellow'});
+            // gameCountdown : function(hostData) {
+            //     App.Player.hostSocketId = hostData.mySocketId;
+            //     $('#gameArea')
+            //         .html('<div class="gameOver">Get Ready!</div>');
+            //     $('tr.1').css({'background-color':'yellow'});
 
-                // App.Host.displayNewGameApp.gameSize
-            },
+            //     // App.Host.displayNewGameApp.gameSize
+            // },
 
             /**
              * Show the "Game Over" screen.
              */
-            endGame : function() {
-                $('#gameArea')
-                    .html('<div class="gameOver">Game Over!</div>')
-                    .append(
-                        // Create a button to start a new game.
-                        $('<button>Start Again</button>')
-                            .attr('id','btnPlayerRestart')
-                            .addClass('btn')
-                            .addClass('btnGameOver')
-                    );
-            }
-        },
+        //     endGame : function() {
+        //         $('#gameArea')
+        //             .html('<div class="gameOver">Game Over!</div>')
+        //             .append(
+        //                 // Create a button to start a new game.
+        //                 $('<button>Start Again</button>')
+        //                     .attr('id','btnPlayerRestart')
+        //                     .addClass('btn')
+        //                     .addClass('btnGameOver')
+        //             );
+        //     }
+        // },
 
 
         /* **************************
@@ -757,32 +664,32 @@ jQuery(function($){
          * @param startTime
          * @param callback The function to call when the timer ends.
          */
-        countDown : function( $el, startTime, callback) {
+        // countDown : function( $el, startTime, callback) {
 
-            // Display the starting time on the screen.
-            $el.text(startTime);
-            // App.doTextFit('#hostWord');
+        //     // Display the starting time on the screen.
+        //     $el.text(startTime);
+        //     // App.doTextFit('#hostWord');
 
-            console.log('Starting Countdown...');
+        //     console.log('Starting Countdown...');
 
-            // Start a 1 second timer
-            var timer = setInterval(countItDown,1000);
+        //     // Start a 1 second timer
+        //     var timer = setInterval(countItDown,1000);
 
-            // Decrement the displayed timer value on each 'tick'
-            function countItDown(){
-                startTime -= 1
-                $el.text(startTime);
-                // App.doTextFit('#hostWord');
+        //     // Decrement the displayed timer value on each 'tick'
+        //     function countItDown(){
+        //         startTime -= 1
+        //         $el.text(startTime);
+        //         // App.doTextFit('#hostWord');
 
-                if( startTime <= 0 ){
-                    console.log('Countdown Finished.');
+        //         if( startTime <= 0 ){
+        //             console.log('Countdown Finished.');
 
-                    // Stop the timer and do the callback.
-                    clearInterval(timer);
-                    callback();
-                    return;
-                }
-            }
+        //             // Stop the timer and do the callback.
+        //             clearInterval(timer);
+        //             callback();
+        //             return;
+        //         }
+        //     }
 
         }
     };

@@ -32,6 +32,9 @@ io.set('log level',1);
 io.sockets.on('connection', function (socket) {
     console.log('client connected');
     btlgame.initGame(io, socket);
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
 });
 
 

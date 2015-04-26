@@ -35,16 +35,45 @@ td{
 }
 
 #userTable td:hover{
-/*	outline: yellow solid 1px;	*/
-	border-radius: 100%;
-	transition: 1s transform ease;
-	transform: scale(.8);
+	outline: rgba(255,255,255,.3) solid 1px;	
+	border-radius: 20px;
+	transition: .2s transform ease-out;
 }
-#userTable td.damage{
+#userTable td.miss:hover{
+/*	outline: yellow solid 1px;	*/
+	border-radius: 0px;
+}
+
+#userTable td.damage:hover{
 	outline: white solid 1px;	
 	border-radius: 10px;
-	transition: 1s transform ease-in;
-	transform: rotate(1080deg);
+}
+#userTable{
+	  background: darkslategray;
+}
+.damage.animate {
+    -webkit-animation:swing 1000ms ease-out;
+    -webkit-transform-origin:center;
+}
+
+ @-webkit-keyframes swing  
+{
+0% {background-color: rgba(255,255,255,1);transform:rotate(0deg) scale(1);} 
+
+50% {background-color: black;transform:rotate(-90deg) scale(.5);}
+75% {background-color: black;transform:rotate(180deg) scale(1.6);}
+100% {background-color: green;transform:rotate(180deg) scale(1);}
+}
+
+.reveal{
+	-webkit-animation: pulse .7s ease;
+}
+
+ @-webkit-keyframes pulse  
+{
+0% {background-color: rgba(255,255,255,1);} 
+/* 50% {background-color: rgba(150,150,150,.9);}*/
+100% {background-color: black;}
 }
 #round{
 	color: white;
@@ -59,4 +88,21 @@ td{
 .stat{
 	background-color: darkslategrey;
 	color: white;
+}
+.icon{
+	font-size: 42px!important;
+  	padding-top: 5px;
+  	margin: 0px;
+  	color:#f8f8f8;
+  	transition: 4s all;
+}
+.sendDam{
+  	color:black;
+}
+.damageSus{
+  	color:red;
+}
+
+.shipIcon:hover{
+
 }

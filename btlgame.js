@@ -3,6 +3,9 @@ var io;
 var gameSocket;
 var gameRooms = [];
 
+
+
+
 /**
  * This function is called by index.js to initialize a new game instance.
  * @param sio The Socket.IO library
@@ -17,18 +20,16 @@ exports.initGame = function(sio, socket){
 
     // Host Events
     gameSocket.on('hostCreateNewGame', hostCreateNewGame);
-    gameSocket.on('hostRoomFull', hostPrepareGame);
-    gameSocket.on('hostCountdownFinished', hostStartGame);
+    // gameSocket.on('hostRoomFull', hostPrepareGame);
+    // gameSocket.on('hostCountdownFinished', hostStartGame);
 
     // Player Events
     gameSocket.on('playerJoinGame', playerJoinGame);
     // gameSocket.on('playerAnswer', playerFire);
-    gameSocket.on('gameSize', gameSize);
+    gameSocket.on('sizeInfo', gameSize);
     gameSocket.on('hitShip', hitShip);
     gameSocket.on('shipGenerator', shipGenerator);
-    gameSocket.on('guess', guess);
     gameSocket.on('hit', hit);
-    gameSocket.on('test', test);
     gameSocket.on('addGame', addGame);
     gameSocket.on('sunk', sunkShip);
 }
@@ -42,17 +43,6 @@ exports.initGame = function(sio, socket){
 /**
  * The 'START' button was clicked and 'hostCreateNewGame' event occurred.
  */
-// function hostCreateNewGame() {
-//     // Create a unique Socket.IO Room
-//     var thisGameId = ( Math.random() * 100000 ) | 0;
-//     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
-//     this.emit('newGameCreated', {gameId: thisGameId, mySocketId: this.id});
-//     console.log(mySocketId)
-//     // Join the Room and wait for the players
-//     this.join(thisGameId.toString());
-
-
-// };
 
 /*
  * Two players have joined. Alert the host!
@@ -61,11 +51,9 @@ exports.initGame = function(sio, socket){
 function hostPrepareGame(gameId) {
     console.log('beg of hostPrepareGame has fired..')
     var sock = this;
-    var turn = 0;
     var data = {
         mySocketId : sock.id,
         gameId : gameId,
-        turn : turn
     };
     console.log("All Players Present. Preparing game...");
     io.sockets.in(data.gameId).emit('beginNewGame', data);
@@ -75,13 +63,11 @@ function hostPrepareGame(gameId) {
  * The Countdown has finished, and the game begins!
  * @param gameId The game ID / room ID
  */
-function hostStartGame(data) {
-    console.log('Game Started.');
+// function hostStartGame(data) {
+//     console.log('Game Started.');
+//     console.log('host fires first...');
 
-    console.log('host fires first...');
-    console.log(data.turn);
-
-};
+// };
 
 /* *****************************
    *                           *
@@ -97,7 +83,7 @@ function hostStartGame(data) {
  */
 function playerJoinGame(data) {
     console.log('Player ' + data.playerName + ' attempting to join game: ' + data.gameId );
-    gameSize();
+    // gameSize();
     // A reference to the player's Socket.IO socket object
     var sock = this;
 
@@ -108,16 +94,13 @@ function playerJoinGame(data) {
     if (index > -1) {
     gameRooms.splice(index, 1);
     }
-
-    console.log(gameRooms);
     // If the room exists...
     if( room != undefined ){
         // attach the socket id to the data object.
         data.mySocketId = sock.id;
 
         // Join the room
-        sock.join(data.gameId);
-
+        sock.join(data.gameId)
         console.log('Player ' + data.playerName + ' joining game: ' + data.gameId );
 
         // Emit an event notifying the clients that the player has joined the room.
@@ -132,34 +115,19 @@ function playerJoinGame(data) {
 function hostCreateNewGame(data) {
     var thisGameId = ( Math.random() * 100000 ) | 0;
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
-    this.emit('newGameCreated', {gameId: thisGameId, mySocketId: this.id, });
+    this.emit('newGameCreated', {gameId: thisGameId, mySocketId: this.id, gameSize: data});
     gameRooms.push(thisGameId);
-    console.log('gameRooms: ' + gameRooms);
-    console.log('built in rooms: ');
-    io.sockets.emit('roomFeed', 'hey');
     // Join the Room and wait for the players
     this.join(thisGameId.toString());
 }
 
-function gameSize(data){
-    console.log('game size: ' + data); 
-    io.sockets.emit('gameSize',data);
+function gameSize(data, gamesize){
+    // io.sockets.in(data.gameId).emit('gameSize',data, gamesize);
+    io.sockets.in(data.gameId).emit('gameSize',data, gamesize);
 }
 
 function shipGenerator(data){
     console.log(" ship gen! "+ data);
-
-
-}
-
-function test(data, row, col){
-    console.log('test working on server')
-    io.emit('test', data, row, col);
-}
-
-function guess(row, col){
-    console.log('row + col: ' + row + col); 
-    io.sockets.emit('guess', row, col);
 }
 
 function sunkShip(data, ship){
@@ -171,25 +139,19 @@ function sunkShip(data, ship){
 function hit(data, row, col){
     console.log('HIT! row + col: ' + row + col); 
     io.sockets.emit('hitVessel', data, row, col);
-
-
     // return false;
 }
 
 function addGame(data){
     console.log('add game fired: ' + data.gameId)
     var roomData = data.gameId;
-    
-    
     io.sockets.emit('roomLabel', gameRooms)
 }
 
 
 
 function hitShip(data, usr, row, col, myRole){
-    console.log("hitship!"+myRole+data.ships.locations)
-
-
+// decide whose turn it is based on App.myRole of the client. Host shoots even shots...
 if(data.round % 2 == 0){
     if(myRole === 'Host'){
             var row = data.answer[0];

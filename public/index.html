@@ -4,7 +4,9 @@
 	<title>Battleship</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 	<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/howler/1.1.26/howler.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -19,52 +21,37 @@
       </button>
       <a class="navbar-brand" href="#">btlshp</a>
     </div>
-
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
-        <li class="stat">
-          <a id="round">
-          </a>
-        </li>
-        <li class="stat">
-          <a id="userRound">
-          </a>
-        </li>
-        <li class="stat">
-          <a id="comRound">
-          </a>
+      <ul class="nav navbar-nav navbar-left">
+        <li>
+          <i class="fa fa-times icon"></i>
+          <i class="fa fa-times icon"></i>
+          <i class="fa fa-times icon"></i>
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-          <a id="turn"><span class="sr-only">(current)</span>
-          </a>
+        <i class="icon fa fa-ship"></i>
+        <i class="icon fa fa-ship"></i>
+        <i class="icon fa fa-ship"></i>
         </li>
-        <li class="active">
+        <li class="">
           <a id="roomStack"> <span class="sr-only">(current)</span>
           </a>
         </li>
         <li class="active">
-          <a id="title">Start <span class="sr-only">(current)</span>
+          <a id="title">Start Game<span class="sr-only">(current)</span>
           </a>
         </li>
-        <form class="navbar-form navbar-left" role="gameId">
-        	<div class="form-group">
-          		<input type="text" id="inputGameId" class="form-control" placeholder="Game Id">
-        	</div>
-<!--         <button type="submit" class="btn btn-default">Submit</button>
- -->    </form>
        <ul class="nav navbar-nav">
-
-        <li><a id="btnStart">Play</a></li>
       </ul>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 	<div class="container">
-    <hr>
+<hr>
 		<div class="instructions">
 			<div class="row">
 				<div class="container">
@@ -86,6 +73,9 @@
     <script src="app.js"></script>
     <script type="text/javascript" src="map.js"></script>
     <script type="text/javascript">
-	</script>
+    $(document).ready(function(){
+
+});
+    </script>
 </body>
 </html>
